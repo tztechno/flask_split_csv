@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Splitter</title>
+</head>
+<body>
+    <h1>CSV Splitter</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="file">Upload CSV File:</label>
+        <input type="file" id="file" name="file" required>
+        <br><br>
+        <label for="lines_per_file">Rows per file (comma-separated):</label>
+        <input type="text" id="lines_per_file" name="lines_per_file" required>
+        <br><br>
+        <button type="submit">Upload and Split</button>
+    </form>
+</body>
+</html>
