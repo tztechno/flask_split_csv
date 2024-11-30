@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import zipfile
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, redirect, url_for
 
 app = Flask(__name__)
 
@@ -58,6 +58,17 @@ def zip_output_files(output_dir):
                     zipf.write(os.path.join(root, file), file)
     return zip_path
 
+def clear_directory(directory):
+    """ディレクトリ内の全ファイルを削除"""
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        elif os.path.isdir(file_path):
+            # サブディレクトリがあればその中も削除
+            clear_directory(file_path)
+            os.rmdir(file_path)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -88,6 +99,13 @@ def upload_file():
         return send_from_directory(app.config['OUTPUT_FOLDER'], 'split_files.zip', as_attachment=True)
 
     return 'Invalid file type'
+
+@app.route('/clear', methods=['POST'])
+def clear_files():
+    # アップロードフォルダと出力フォルダを削除
+    clear_directory(app.config['UPLOAD_FOLDER'])
+    clear_directory(app.config['OUTPUT_FOLDER'])
+    return redirect(url_for('index'))  # クリア後にトップページに戻る
 
 if __name__ == '__main__':
     app.run(debug=True)

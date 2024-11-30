@@ -4,38 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV ファイルアップロード</title>
-    <style>
-        table.data {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table.data th,
-        table.data td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
+    <title>Flask Upload</title>
 </head>
 
 <body>
-    <h1>CSV ファイルアップロード</h1>
+    <h1>CSVファイルアップロード</h1>
+
     <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="file">CSVファイルを選択:</label>
-        <input type="file" id="file" name="file" accept=".csv" required><br><br>
-
-        <label for="lines_per_file">行数を指定 (カンマ区切りで複数行指定可):</label>
-        <input type="text" id="lines_per_file" name="lines_per_file" placeholder="例: 3,5,2" required><br><br>
-
-        <input type="submit" value="アップロード">
+        <input type="file" name="file" required>
+        <br><br>
+        <label for="lines_per_file">1ファイルあたりの行数:</label>
+        <input type="text" name="lines_per_file" required placeholder="例: 100, 200">
+        <br><br>
+        <button type="submit">アップロード</button>
     </form>
 
-    {% if zip_file %}
-    <h2>ファイルの分割と圧縮が完了しました。</h2>
-    <a href="{{ zip_file }}" download>こちらからZIPファイルをダウンロードできます</a>
-    {% endif %}
+    <hr>
+
+    <h2>フォルダをクリア</h2>
+    <form action="/clear" method="POST">
+        <button type="submit">アップロード・出力ファイルを削除</button>
+    </form>
+
 </body>
 
 </html>
