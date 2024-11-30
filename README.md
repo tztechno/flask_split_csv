@@ -12,6 +12,9 @@ python app.py
 (windows)
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 venv\Scripts\activate 
+pip install pyinstaller
+pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" app.py
+
 
 http://127.0.0.1:5000
 
@@ -24,5 +27,8 @@ git add .
 git commit -m "2024-11-30"
 git push -u origin main
 git push -f origin main
+
+
+
 
 ```
