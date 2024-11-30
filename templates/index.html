@@ -1,20 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Splitter</title>
+    <title>CSV ファイルアップロード</title>
+    <style>
+        table.data {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.data th,
+        table.data td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>CSV Splitter</h1>
+    <h1>CSV ファイルアップロード</h1>
     <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="file">Upload CSV File:</label>
-        <input type="file" id="file" name="file" required>
-        <br><br>
-        <label for="lines_per_file">Rows per file (comma-separated):</label>
-        <input type="text" id="lines_per_file" name="lines_per_file" required>
-        <br><br>
-        <button type="submit">Upload and Split</button>
+        <label for="file">CSVファイルを選択:</label>
+        <input type="file" id="file" name="file" accept=".csv" required><br><br>
+
+        <label for="lines_per_file">行数を指定 (カンマ区切りで複数行指定可):</label>
+        <input type="text" id="lines_per_file" name="lines_per_file" placeholder="例: 3,5,2" required><br><br>
+
+        <input type="submit" value="アップロード">
     </form>
+
+    {% if zip_file %}
+    <h2>ファイルの分割と圧縮が完了しました。</h2>
+    <a href="{{ zip_file }}" download>こちらからZIPファイルをダウンロードできます</a>
+    {% endif %}
 </body>
+
 </html>

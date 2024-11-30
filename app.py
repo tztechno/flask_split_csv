@@ -1,15 +1,28 @@
 import pandas as pd
 import os
 import zipfile
+from flask import Flask, request, render_template, send_from_directory
+
+app = Flask(__name__)
+
+# アップロードファイルを保存するフォルダ
+UPLOAD_FOLDER = 'uploads'
+OUTPUT_FOLDER = 'output_files'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+
+# フォルダが存在しない場合、作成
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+if not os.path.exists(OUTPUT_FOLDER):
+    os.makedirs(OUTPUT_FOLDER)
 
 def split_csv_custom(input_file, output_dir, lines_per_file_list):
     # 入力CSVの読み込み
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_file, encoding='shift-jis')
     total_rows = len(df)
     start_index = 0
-
-    # 出力先ディレクトリの作成
-    os.makedirs(output_dir, exist_ok=True)
 
     # ファイル分割処理
     for file_num, lines_per_file in enumerate(lines_per_file_list, start=1):
@@ -45,12 +58,36 @@ def zip_output_files(output_dir):
                     zipf.write(os.path.join(root, file), file)
     return zip_path
 
-# 使用例
-if __name__ == '__main__':
-    input_file = "input.csv"       # 元のCSVファイル
-    output_dir = "output_files"    # 分割ファイルの保存先
-    lines_per_file_list = [3, 5, 2]  # 各ファイルの行数（例）
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    split_csv_custom(input_file, output_dir, lines_per_file_list)
-    zip_path = zip_output_files(output_dir)
-    print(f"All split files are zipped at: {zip_path}")
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part'
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file'
+    if file and file.filename.endswith('.csv'):
+        # アップロードされたファイルを保存
+        input_file = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(input_file)
+        
+        # フォームで指定された行数リストを取得（カンマ区切りで処理）
+        lines_per_file_input = request.form['lines_per_file']
+        lines_per_file_list = list(map(int, lines_per_file_input.split(',')))
+        
+        # CSVの分割処理
+        split_csv_custom(input_file, app.config['OUTPUT_FOLDER'], lines_per_file_list)
+        
+        # 出力ファイルをZIP化
+        zip_path = zip_output_files(app.config['OUTPUT_FOLDER'])
+        
+        # ZIPファイルをダウンロードリンクで返す
+        return send_from_directory(app.config['OUTPUT_FOLDER'], 'split_files.zip', as_attachment=True)
+
+    return 'Invalid file type'
+
+if __name__ == '__main__':
+    app.run(debug=True)
